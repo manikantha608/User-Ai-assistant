@@ -7,7 +7,11 @@ const ChatSchema = new mongoose.Schema({
     messages:[
         {
             isImage :{type:Boolean,required:true},
-            role : {type:Boolean,default:false},
+            role: {
+        type: String, // <-- FIX: was Boolean
+        enum: ["user", "assistant"], // optional validation
+        required: true,
+      },
             content : {type:String,required:true},
             timestamp:{type:Number,required:true}
 
