@@ -9,8 +9,8 @@ import { assets } from "./assets/assets"
 import "./assets/prism.css"
 import Loading from "./pages/Loading"
 import { useAppContext } from "./context/AppContext"
-import Login from "./pages/Login"
 import {Toaster} from "react-hot-toast"
+import SignUp from "./pages/SignUp."
 
 const App = () => {
   //for small screen menu
@@ -42,7 +42,8 @@ const App = () => {
     </div>
     ):(
       <div className="bg-gradient-to-b from-[#242124] to-[#000000] flex items-center justify-center h-screen w-screen">
-        <Login/>
+        {/* <Login/> */}
+        <SignUp/>
       </div>
     ) }
 
