@@ -5,6 +5,7 @@ import connectDB from "./configs/db.js"
 import userRouter from "./routes/userRoutes.js"
 import chatRouter from "./routes/chatRoutes.js"
 import messageRouter from "./routes/messageRoutes.js"
+import admiRouter from "./routes/adminRoutes.js"
 const app = express()
 
 await connectDB()
@@ -18,6 +19,7 @@ app.get("/",(req,res)=>res.send("Server is Live!"))
 app.use("/api/auth",userRouter)
 app.use("/api/chat",chatRouter)
 app.use("/api/message",messageRouter)
+app.use("/api/admin",admiRouter)
 
 const PORT = process.env.PORT || 3000
 

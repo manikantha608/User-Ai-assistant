@@ -15,10 +15,11 @@ const UserSchema = new mongoose.Schema({
         type:String,
         required:true
     },
-    // credits:{
-    //     type:Number,
-    //     default:20
-    // }
+     role:{
+        type:String,
+        enum:['user','admin'], //only allow user or admin roles
+        default:"user"
+    }
 })
 
 //Hash Password before saving

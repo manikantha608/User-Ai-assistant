@@ -1,64 +1,3 @@
-// import { Children, createContext, useContext, useEffect, useState } from "react";
-// import { useNavigate } from "react-router-dom";
-
-// import { dummyChats, dummyUserData } from "../assets/assets";
-
-// const AppContext = createContext()
-
-// export const AppContextProvider = ({Children})=>{
-
-//     const navigate = useNavigate()
-//     const [user,setUser] = useState(null)
-//     const [chats,setChats] = useState([])
-//     const [selectedChat,setSelectedChat] = useState(null)
-//     const [theme,setTheme] = useState(localStorage.getItem("theme")||'light')
-    
-//     const fetchUser = async()=>{
-//         setUser(dummyUserData)
-//     }
-
-//     const fetchUsersChats = async ()=>{
-//         setChats(dummyChats)
-//         setSelectedChat(dummyChats[0])
-//     }
-
-//     useEffect(()=>{
-//         if(theme === "dark"){
-//             document.documentElement.classList.add("dark")
-//         }else{
-//             document.documentElement.classList.remove("dark")
-//         }
-//     },[theme])
-
-//     useEffect(()=>{
-//         if(user){
-//             fetchUsersChats()
-//         }else{
-//             setChats([])
-//             setSelectedChat(null)
-//         }
-//     },[user])
-
-//     useEffect(()=>{
-//       fetchUser()
-//     },[])
-//     const value = {
-//         navigate, user, setUser, fetchUser, chats, setChats, selectedChat, setSelectedChat, theme, setTheme
-//     }
-//     return (
-//         <AppContext.Provider value={value}>
-//             {Children}
-//         </AppContext.Provider>
-//     )
-// }
-
-// export const useAppContext = () => useContext(AppContext)
-
-
-
-
-
-
 import { createContext, useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
@@ -78,6 +17,13 @@ export const AppContextProvider = ({ children }) => {
   const [theme, setTheme] = useState(localStorage.getItem("theme") || "light");
   const [token, setToken] = useState(localStorage.getItem("token") || null)
   const [loadingUser,setLoadingUser] = useState(true)
+  const [allUsers,setAllUsers] = useState([])
+
+  //for admin
+  const [faqs,setFaqs] = useState([])
+  const [documents,setDocuments] = useState([])
+
+  console.log(documents,"111223")
 
   const fetchUser = async () => {
     console.log(token,"Token")
@@ -131,6 +77,61 @@ export const AppContextProvider = ({ children }) => {
     }
   };
 
+
+    const fetchAllUsers = async()=>{
+    try{
+       const {data} = await axios.get('/api/auth/all-users',{
+        headers:{Authorization: `Bearer ${token}` }
+      })
+      if(data.success){
+        setAllUsers(data.users)
+      }
+      // console.log(data,"dddddddddddddddd")
+
+    }catch(error){
+       toast.error(error.message)
+    }
+  }
+
+
+  //For admin fqas
+  const fetchFAQs = async()=>{
+    try{
+       const {data} = await axios.get('/api/admin/faq-all',{
+        headers:{Authorization: `Bearer ${token}` }
+      })
+      if(data.success){
+        setFaqs(data.faq)
+      }
+      // console.log(data,"dddddddddddddddd")
+
+    }catch(error){
+       toast.error(error.message)
+    }
+  }
+
+    const fetchDocs = async()=>{
+    try{
+       const {data} = await axios.get('/api/admin/doc-all',{
+        headers:{Authorization: `Bearer ${token}` }
+      })
+      console.log("my doc",data)
+      if(data.success){
+        setDocuments(data.documents)
+      }
+
+    }catch(error){
+       toast.error(error.message)
+    }
+  }
+  
+
+  useEffect(()=>{
+    fetchAllUsers(),
+    fetchFAQs(),
+    fetchDocs()
+  },[])
+
   useEffect(() => {
     if (theme === "dark") {
       document.documentElement.classList.add("dark");
@@ -170,7 +171,12 @@ export const AppContextProvider = ({ children }) => {
     setTheme,
     createNewChat,
     loadingUser,
-    fetchUsersChats,token,setToken,axios
+    fetchUsersChats,
+    token,
+    setToken,
+    axios,
+    allUsers,
+    faqs,documents
   };
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;

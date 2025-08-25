@@ -7,6 +7,7 @@ export default function SignUp() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [role, setRole] = useState("user");
   const { axios, setToken } = useAppContext();
 
   const handleSubmit = async (e) => {
@@ -14,11 +15,14 @@ export default function SignUp() {
     const url = state === "login" ? "/api/auth/login" : "/api/auth/register";
 
     try {
-      const { data } = await axios.post(url, { name, email, password });
+      const { data } = await axios.post(url, { name, email, password, role });
+      console.log(data,"user dataa")
       if (data.success) {
         setToken(data.token);
         localStorage.setItem("token", data.token);
-        toast.success(state === "login" ? "Login successful!" : "Account created!");
+        toast.success(
+          state === "login" ? "Login successful!" : "Account created!"
+        );
       } else {
         toast.error(data.message);
       }
@@ -55,15 +59,31 @@ export default function SignUp() {
 
           {/* Name field (only for register) */}
           {state === "register" && (
-            <div className="flex items-center mt-6 w-full bg-transparent border border-gray-300/60 h-12 rounded-full overflow-hidden pl-6">
-              <input
-                type="text"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                placeholder="Full Name"
-                className="bg-transparent text-gray-500/80 placeholder-gray-500/80 outline-none text-sm w-full h-full"
-                
-              />
+            <div className="w-full">
+              <div className="flex items-center mt-6 w-full bg-transparent border border-gray-300/60 h-12 rounded-full overflow-hidden pl-6">
+                <input
+                  type="text"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  placeholder="Full Name"
+                  className="bg-transparent text-gray-500/80 placeholder-gray-500/80 outline-none text-sm w-full h-full"
+                />
+              </div>
+
+              {/* Role selector */}
+              <div className="flex items-center mt-4 w-full">
+                <label className="mr-4 text-gray-600 text-sm font-medium">
+                  Role:
+                </label>
+                <select
+                  value={role}
+                  onChange={(e) => setRole(e.target.value)}
+                  className="border border-gray-300/60 rounded h-10 px-3 text-sm outline-none"
+                >
+                  <option value="user">User</option>
+                  <option value="admin">Admin</option>
+                </select>
+              </div>
             </div>
           )}
 
@@ -75,7 +95,6 @@ export default function SignUp() {
               onChange={(e) => setEmail(e.target.value)}
               placeholder="Email Address"
               className="bg-transparent text-gray-500/80 placeholder-gray-500/80 outline-none text-sm w-full h-full"
-              
             />
           </div>
 
@@ -87,7 +106,6 @@ export default function SignUp() {
               onChange={(e) => setPassword(e.target.value)}
               placeholder="Password"
               className="bg-transparent text-gray-500/80 placeholder-gray-500/80 outline-none text-sm w-full h-full"
-              
             />
           </div>
 

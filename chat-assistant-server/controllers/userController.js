@@ -9,7 +9,7 @@ const generateToken=(id)=>{
 }
 //API to Register user
 export const registerUser = async (req ,res)=>{
-    const {name,email,password} = req.body;
+    const {name,email,password,role} = req.body;
     console.log(name,email,password)
 
     try{
@@ -18,7 +18,7 @@ export const registerUser = async (req ,res)=>{
         if(userExists){
             return res.json({success:false , message:"User already exists"})
         }
-        const user = await User.create({name,email,password})
+        const user = await User.create({name,email,password,role})
         const token = generateToken(user._id)
         return res.status(201).json({success:true,token})
     }catch(error){
@@ -50,6 +50,17 @@ export const getUser = async(req,res)=>{
     try{
         const user = req.user;
         return res.json({success:true,user})
+    }catch(error){
+        return res.json({success:false,message:error.message})
+    }
+}
+
+
+//API to get user data
+export const getAllUser = async(req,res)=>{
+    try{
+        const users = await User.find()
+        return res.json({success:true,users})
     }catch(error){
         return res.json({success:false,message:error.message})
     }

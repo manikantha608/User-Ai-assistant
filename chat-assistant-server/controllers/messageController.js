@@ -3,10 +3,12 @@ import Chat from "../models/Chat.js";
 import User from "../models/User.js";
 import imagekit from "../configs/imagekit.js";
 import openai from "../configs/openai.js";
+import FAQ from "../models/FAQ.js";
+import Document from "../models/Document.js";
 
 //Text-based AI Chat Message Controller
 export const textMessageController = async (req, res) => {
-   try {
+  try {
     const userId = req.user._id;
     const { chatId, prompt } = req.body;
 
@@ -23,19 +25,50 @@ export const textMessageController = async (req, res) => {
       isImage: false,
     });
 
-    // Get AI response
-    const { choices } = await openai.chat.completions.create({
-      model: "gemini-2.0-flash",
-      messages: [{ role: "user", content: prompt }],
-    });
+    let reply;
 
-    const reply = {
-      ...choices[0].message,
-      timestamp: Date.now(),
-      isImage: false,
-    };
+    // 🔎 Step 1: Check FAQ
+    const faq = await FAQ.findOne({ $text: { $search: prompt } });
+    if (faq) {
+      reply = {
+        role: "assistant",
+        content: faq.answer,
+        timestamp: Date.now(),
+        isImage: false,
+      };
+    }
 
-    // Push AI reply
+    // 🔎 Step 2: Check Documents if FAQ not found
+    if (!reply) {
+      const doc = await Document.findOne({ $text: { $search: prompt } });
+      if (doc) {
+        reply = {
+          role: "assistant",
+          content: doc.content,
+          timestamp: Date.now(),
+          isImage: false,
+        };
+      }
+    }
+
+    // 🔎 Step 3: Fallback to AI
+    if (!reply) {
+      const { choices } = await openai.chat.completions.create({
+        model: "gemini-2.0-flash",
+        messages: [
+          { role: "system", content: "You are a support assistant. Use company FAQs & Docs if relevant." },
+          { role: "user", content: prompt },
+        ],
+      });
+
+      reply = {
+        ...choices[0].message,
+        timestamp: Date.now(),
+        isImage: false,
+      };
+    }
+
+    // Push AI or FAQ/Doc reply
     chat.messages.push(reply);
 
     // Save chat updates
@@ -44,12 +77,11 @@ export const textMessageController = async (req, res) => {
     // Update user credits (example: -1 per message)
     await User.updateOne({ _id: userId }, { $inc: { credits: -1 } });
 
-    // Send response AFTER saving
     return res.json({ success: true, reply });
   } catch (error) {
-        res.json({ success: false, message: error.message })
-    }
-}
+    res.json({ success: false, message: error.message });
+  }
+};
 
 //Image Generation Message Controller
 export const imageMessageController = async (req, res) => {
