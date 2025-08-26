@@ -12,7 +12,7 @@ import SignUp from "./pages/SignUp."
 
 import FAQs from "./pages/FAQs"
 import Documents from "./pages/Documents"
-import AdminDashboard from "./pages/AdminDashboard"
+import AdminDashboard from "./pages/adminDashBoard"
 import AdminSideBar from "./pages/adminSideBar"
 
 const App = () => {
