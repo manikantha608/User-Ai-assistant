@@ -10,11 +10,9 @@ const generateToken=(id)=>{
 //API to Register user
 export const registerUser = async (req ,res)=>{
     const {name,email,password,role} = req.body;
-    console.log(name,email,password)
 
     try{
         const userExists = await User.findOne({email})
-        console.log(userExists)
         if(userExists){
             return res.json({success:false , message:"User already exists"})
         }
@@ -29,7 +27,6 @@ export const registerUser = async (req ,res)=>{
 //API to login user
 export const loginUser = async(req , res)=>{
     const {email,password} = req.body;
-    console.log(email,password)
     try{
         const user = await User.findOne({email})
         if(user){

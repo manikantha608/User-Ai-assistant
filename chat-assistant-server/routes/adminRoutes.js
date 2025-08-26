@@ -38,16 +38,12 @@ router.post("/doc",authMiddleware,isAdminUser, upload.single("file"), async (req
       return res.status(400).json({ success: false, message: "No file uploaded" });
     }
 
-    // Extract text from PDF
-    // console.log("req file",req.file.buffer)
     const pdfData = await extractPdfText(req.file.buffer);
-    console.log(pdfData,"pdf")
 
     const doc = await Document.create({
       title: req.file.originalname,
       content: pdfData,
     });
-    console.log(doc,"doc")
 
     res.json({ success: true, doc });
   } catch (err) {

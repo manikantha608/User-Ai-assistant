@@ -16,121 +16,113 @@ export const AppContextProvider = ({ children }) => {
   const [selectedChat, setSelectedChat] = useState(null);
   const [theme, setTheme] = useState(localStorage.getItem("theme") || "light");
   const [token, setToken] = useState(localStorage.getItem("token") || null)
-  const [loadingUser,setLoadingUser] = useState(true)
-  const [allUsers,setAllUsers] = useState([])
+  const [loadingUser, setLoadingUser] = useState(true)
+  const [allUsers, setAllUsers] = useState([])
 
   //for admin
-  const [faqs,setFaqs] = useState([])
-  const [documents,setDocuments] = useState([])
+  const [faqs, setFaqs] = useState([])
+  const [documents, setDocuments] = useState([])
 
-  console.log(documents,"111223")
 
   const fetchUser = async () => {
-    console.log(token,"Token")
-    try{
-      const {data} = await axios.get("/api/auth/data",{headers:{Authorization: `Bearer ${token}` }})
-      console.log(data,"user data")
-      if(data.success){
+    try {
+      const { data } = await axios.get("/api/auth/data", { headers: { Authorization: `Bearer ${token}` } })
+      if (data.success) {
         setUser(data.user)
-      }else{
+      } else {
         toast.error(data.message)
       }
-    }catch(error){
-        toast.error(error.message)
-    }finally{
+    } catch (error) {
+      toast.error(error.message)
+    } finally {
       setLoadingUser(false)
     }
   };
 
-  const createNewChat = async()=>{
-    try{
-      if(!user) return toast("Login to create a new chat")
-        navigate("/")
-      await axios.get("/api/chat/create",{headers:{Authorization: `Bearer ${token}` }})
+  const createNewChat = async () => {
+    try {
+      if (!user) return toast("Login to create a new chat")
+      navigate("/")
+      await axios.get("/api/chat/create", { headers: { Authorization: `Bearer ${token}` } })
       await fetchUsersChats()
-    }catch(error){
+    } catch (error) {
       toast.error(error.message)
     }
   }
 
   const fetchUsersChats = async () => {
-    try{
-      const {data} = await axios.get('/api/chat/get',{
-        headers:{Authorization: `Bearer ${token}` }
+    try {
+      const { data } = await axios.get('/api/chat/get', {
+        headers: { Authorization: `Bearer ${token}` }
       })
-      console.log(data,"chat data")
-      if(data.success){
+      if (data.success) {
         setChats(data.chats)
         //If the user has no chats, create one 
-        if(data.chats.length === 0){
+        if (data.chats.length === 0) {
           await createNewChat();
           return fetchUsersChats()
-        }else{
+        } else {
           setSelectedChat(data.chats[0])
         }
-      }else{
+      } else {
         toast.error(data.message)
       }
 
-    }catch(error){
-       toast.error(error.message)
+    } catch (error) {
+      toast.error(error.message)
     }
   };
 
 
-    const fetchAllUsers = async()=>{
-    try{
-       const {data} = await axios.get('/api/auth/all-users',{
-        headers:{Authorization: `Bearer ${token}` }
+  const fetchAllUsers = async () => {
+    try {
+      const { data } = await axios.get('/api/auth/all-users', {
+        headers: { Authorization: `Bearer ${token}` }
       })
-      if(data.success){
+      if (data.success) {
         setAllUsers(data.users)
       }
-      // console.log(data,"dddddddddddddddd")
 
-    }catch(error){
-       toast.error(error.message)
+    } catch (error) {
+      toast.error(error.message)
     }
   }
 
 
   //For admin fqas
-  const fetchFAQs = async()=>{
-    try{
-       const {data} = await axios.get('/api/admin/faq-all',{
-        headers:{Authorization: `Bearer ${token}` }
+  const fetchFAQs = async () => {
+    try {
+      const { data } = await axios.get('/api/admin/faq-all', {
+        headers: { Authorization: `Bearer ${token}` }
       })
-      if(data.success){
+      if (data.success) {
         setFaqs(data.faq)
       }
-      // console.log(data,"dddddddddddddddd")
 
-    }catch(error){
-       toast.error(error.message)
+    } catch (error) {
+      toast.error(error.message)
     }
   }
 
-    const fetchDocs = async()=>{
-    try{
-       const {data} = await axios.get('/api/admin/doc-all',{
-        headers:{Authorization: `Bearer ${token}` }
+  const fetchDocs = async () => {
+    try {
+      const { data } = await axios.get('/api/admin/doc-all', {
+        headers: { Authorization: `Bearer ${token}` }
       })
-      console.log("my doc",data)
-      if(data.success){
+      if (data.success) {
         setDocuments(data.documents)
       }
 
-    }catch(error){
-       toast.error(error.message)
+    } catch (error) {
+      toast.error(error.message)
     }
   }
-  
 
-  useEffect(()=>{
+  useEffect(() => {
     fetchAllUsers(),
-    fetchFAQs(),
-    fetchDocs()
-  },[])
+      fetchFAQs(),
+      fetchDocs()
+  }, [user])
 
   useEffect(() => {
     if (theme === "dark") {
@@ -150,9 +142,9 @@ export const AppContextProvider = ({ children }) => {
   }, [user]);
 
   useEffect(() => {
-    if(token){
+    if (token) {
       fetchUser();
-    }else{
+    } else {
       setUser(null)
       setLoadingUser(false)
     }
@@ -176,8 +168,9 @@ export const AppContextProvider = ({ children }) => {
     setToken,
     axios,
     allUsers,
-    faqs,documents
+    faqs, documents
   };
+
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;
 };

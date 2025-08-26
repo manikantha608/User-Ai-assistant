@@ -1,16 +1,39 @@
 import { useState } from "react";
 import { useAppContext } from "../context/AppContext";
+import toast from "react-hot-toast";
+import axios from "axios";
 
 export default function FAQs() {
   const [openIndex, setOpenIndex] = useState(null);
 
-  const {faqs} = useAppContext()
+  const { faqs, token } = useAppContext()
 
-  // console.log("faqs",faqs)
 
-  const handleSubmit = ()=>{
+  const handleSubmit = async (e) => {
+    e.preventDefault();
 
-  }
+    const question = e.target.question.value;
+    const answer = e.target.answer.value;
+
+    try {
+      const { data } = await axios.post(
+        '/api/admin/faq',
+        { question, answer }, // data goes here
+        { headers: { Authorization: `Bearer ${token}` } } // config goes here
+      );
+
+      if (data.success) {
+        toast.success("FAQ Created successfully..!");
+        e.target.question.value = "";
+        e.target.answer.value = "";
+      } else {
+        toast.error(data.message);
+      }
+    } catch (error) {
+      toast.error(error.message);
+    }
+  };
+
 
   return (
     <div className="flex flex-col md:flex-row justify-between gap-8 px-4 md:px-10 py-8">
@@ -34,7 +57,7 @@ export default function FAQs() {
           </label>
           <textarea
             rows="3"
-            id="content"
+            id="answer"
             className="w-full resize-none border mt-1.5 border-gray-500/30 outline-none rounded py-2.5 px-3"
             placeholder="Enter content"
             required
@@ -90,9 +113,8 @@ export default function FAQs() {
                     viewBox="0 0 18 18"
                     fill="none"
                     xmlns="http://www.w3.org/2000/svg"
-                    className={`${
-                      openIndex === index ? "rotate-180" : ""
-                    } transition-all duration-500 ease-in-out`}
+                    className={`${openIndex === index ? "rotate-180" : ""
+                      } transition-all duration-500 ease-in-out`}
                   >
                     <path
                       d="m4.5 7.2 3.793 3.793a1 1 0 0 0 1.414 0L13.5 7.2"
@@ -106,11 +128,10 @@ export default function FAQs() {
 
                 {/* Scrollable Answer */}
                 <div
-                  className={`px-4 transition-all duration-500 ease-in-out overflow-hidden ${
-                    openIndex === index
+                  className={`px-4 transition-all duration-500 ease-in-out overflow-hidden ${openIndex === index
                       ? "opacity-100 max-h-[300px] translate-y-0 pt-4"
                       : "opacity-0 max-h-0 -translate-y-2"
-                  }`}
+                    }`}
                 >
                   <p className="text-sm text-slate-500 overflow-y-auto max-h-[200px] pr-2">
                     {faq.answer}

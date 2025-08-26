@@ -20,7 +20,7 @@ const App = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const {pathname} = useLocation()
   const {user,loadingUser,token} = useAppContext()
-  console.log(user,"myuser")
+
   if(pathname === "/loading" || loadingUser) return <Loading/>
   return (
     <>

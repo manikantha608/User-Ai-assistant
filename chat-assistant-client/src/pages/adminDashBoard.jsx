@@ -3,8 +3,7 @@ import AdminBanner from '../components/AdminBanner'
 import { useAppContext } from '../context/AppContext'
 
 const AdminDashboard = () => {
-  const {faqs,documents,allUsers} = useAppContext()
-  // console.log(user,"uu")
+  const { faqs, documents, allUsers } = useAppContext()
   const [stats, setStats] = useState({
     users: allUsers.length,
     faqs: faqs.length,

@@ -16,7 +16,6 @@ export default function SignUp() {
 
     try {
       const { data } = await axios.post(url, { name, email, password, role });
-      console.log(data,"user dataa")
       if (data.success) {
         setToken(data.token);
         localStorage.setItem("token", data.token);

@@ -1,31 +1,51 @@
 import React, { useState } from "react";
 import { useAppContext } from "../context/AppContext";
-
+import axios from "axios";
+import { toast } from "react-hot-toast";
 
 export default function Documents() {
-  
-  const {documents} = useAppContext()
+  const { documents, token } = useAppContext();
 
-  // console.log("mdsjndsj",documents)
-  
+  const [file, setFile] = useState(null);
+  const [loading, setLoading] = useState(false);
   const [openIndex, setOpenIndex] = useState(null);
 
-  // const faqsData = [
-  //   {
-  //     question: "File 1.pdf",
-  //     answer: "This document was uploaded successfully and processed.This document was uploaded successfully and processed.This document was uploaded successfully and processed.This document was uploaded successfully and processed.This document was uploaded successfully and processed.This document was uploaded successfully and processed.This document was uploaded successfully and processed.This document was uploaded successfully and processed.This document was uploaded successfully and processed.This document was uploaded successfully and processed.This document was uploaded successfully and processed.This document was uploaded successfully and processed.This document was uploaded successfully and processed.This document was uploaded successfully and processed.This document was uploaded successfully and processed.This document was uploaded successfully and processed.This document was uploaded successfully and processed.This document was uploaded successfully and processed.This document was uploaded successfully and processed.This document was uploaded successfully and processed.This document was uploaded successfully and processed.This document was uploaded successfully and processed.This document was uploaded successfully and processed.This document was uploaded successfully and processed.This document was uploaded successfully and processed.This document was uploaded successfully and processed.This document was uploaded successfully and processed.This document was uploaded successfully and processed.This document was uploaded successfully and processed.This document was uploaded successfully and processed.This document was uploaded successfully and processed.This document was uploaded successfully and processed.This document was uploaded successfully and processed.This document was uploaded successfully and processed.This document was uploaded successfully and processed."
-  //   },
-  //   {
-  //     question: "Invoice_2023.xlsx",
-  //     answer:
-  //       "Excel file uploaded on 24th Aug 2025. Contains billing information."
-  //   },
-  //   {
-  //     question: "Contract.docx",
-  //     answer:
-  //       "Word document with company contract details. Uploaded on 20th Aug."
-  //   }
-  // ];
+  const handleFileChange = (e) => {
+    setFile(e.target.files[0]);
+  };
+
+  const handleSubmit = async () => {
+    if (!file) {
+      toast.error("Please select a file to upload");
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append("file", file);
+
+    try {
+      setLoading(true);
+
+      const { data } = await axios.post("/api/admin/doc", formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      setLoading(false);
+
+      if (data.success) {
+        toast.success("Document uploaded successfully!");
+        setFile(null);
+      } else {
+        toast.error(data.message || "Failed to upload document");
+      }
+    } catch (err) {
+      setLoading(false);
+      toast.error(err.message || "Something went wrong");
+    }
+  };
 
   return (
     <div className="flex flex-col justify-between md:flex-row gap-6 p-4">
@@ -76,7 +96,12 @@ export default function Documents() {
             Or <span className="text-blue-500 underline">click here</span> to
             select a file
           </p>
-          <input id="fileInput" type="file" className="hidden" />
+          <input
+            id="fileInput"
+            type="file"
+            className="hidden"
+            onChange={handleFileChange}
+          />
         </label>
 
         {/* Buttons */}
@@ -84,14 +109,17 @@ export default function Documents() {
           <button
             type="button"
             className="px-9 py-2 border border-gray-500/50 bg-white hover:bg-blue-100/30 active:scale-95 transition-all text-gray-500 rounded"
+            onClick={() => setFile(null)}
           >
             Cancel
           </button>
           <button
             type="button"
             className="px-6 py-2 bg-indigo-500 hover:bg-indigo-600 active:scale-95 transition-all text-white rounded"
+            onClick={handleSubmit}
+            disabled={loading}
           >
-            Upload File
+            {loading ? "Uploading..." : "Upload File"}
           </button>
         </div>
       </div>
@@ -121,9 +149,8 @@ export default function Documents() {
                   viewBox="0 0 18 18"
                   fill="none"
                   xmlns="http://www.w3.org/2000/svg"
-                  className={`${
-                    openIndex === index ? "rotate-180" : ""
-                  } transition-all duration-500 ease-in-out`}
+                  className={`${openIndex === index ? "rotate-180" : ""
+                    } transition-all duration-500 ease-in-out`}
                 >
                   <path
                     d="m4.5 7.2 3.793 3.793a1 1 0 0 0 1.414 0L13.5 7.2"
@@ -136,11 +163,10 @@ export default function Documents() {
               </div>
 
               <div
-                className={`px-4 transition-all duration-500 ease-in-out overflow-hidden ${
-                  openIndex === index
+                className={`px-4 transition-all duration-500 ease-in-out overflow-hidden ${openIndex === index
                     ? "opacity-100 max-h-[300px] translate-y-0 pt-4"
                     : "opacity-0 max-h-0 -translate-y-2"
-                }`}
+                  }`}
               >
                 <p className="text-sm text-slate-500 overflow-y-auto max-h-[200px] pr-2">
                   {doc.content}
